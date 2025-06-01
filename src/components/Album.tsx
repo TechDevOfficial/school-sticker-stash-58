@@ -94,7 +94,12 @@ const Album = () => {
 
           {/* Shop Tab */}
           <TabsContent value="shop">
-            <PackOpener coins={coins} onOpenPack={handleOpenPack} />
+            <PackOpener 
+              coins={coins} 
+              onOpenPack={handleOpenPack}
+              hasSticker={hasSticker}
+              getStickerCount={getStickerCount}
+            />
           </TabsContent>
         </Tabs>
 

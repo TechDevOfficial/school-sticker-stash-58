@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -5,23 +6,27 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Sticker, Pack } from '@/types/sticker';
 import { PACKS } from '@/data/stickers';
 import StickerCard from './StickerCard';
-import { Coins, Package } from 'lucide-react';
+import { Coins, Package, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface PackOpenerProps {
   coins: number;
   onOpenPack: (stickerCount: number, cost: number) => Sticker[] | null;
+  hasSticker: (id: string) => boolean;
+  getStickerCount: (id: string) => number;
 }
 
-const PackOpener = ({ coins, onOpenPack }: PackOpenerProps) => {
+const PackOpener = ({ coins, onOpenPack, hasSticker, getStickerCount }: PackOpenerProps) => {
   const [isOpening, setIsOpening] = useState(false);
   const [isTearing, setIsTearing] = useState(false);
   const [openedStickers, setOpenedStickers] = useState<Sticker[]>([]);
   const [showResults, setShowResults] = useState(false);
   const [selectedPack, setSelectedPack] = useState<Pack | null>(null);
+  const [currentStickerIndex, setCurrentStickerIndex] = useState(0);
 
   const handleOpenPack = async (pack: Pack) => {
     setSelectedPack(pack);
     setIsOpening(true);
+    setCurrentStickerIndex(0);
     
     // Prima fase: animazione di selezione del pacchetto
     setTimeout(() => {
@@ -44,7 +49,23 @@ const PackOpener = ({ coins, onOpenPack }: PackOpenerProps) => {
   const closeResults = () => {
     setShowResults(false);
     setOpenedStickers([]);
+    setCurrentStickerIndex(0);
   };
+
+  const nextSticker = () => {
+    if (currentStickerIndex < openedStickers.length - 1) {
+      setCurrentStickerIndex(currentStickerIndex + 1);
+    }
+  };
+
+  const prevSticker = () => {
+    if (currentStickerIndex > 0) {
+      setCurrentStickerIndex(currentStickerIndex - 1);
+    }
+  };
+
+  const currentSticker = openedStickers[currentStickerIndex];
+  const isDuplicate = currentSticker && getStickerCount(currentSticker.id) > 1;
 
   return (
     <div className="space-y-6">
@@ -143,27 +164,82 @@ const PackOpener = ({ coins, onOpenPack }: PackOpenerProps) => {
         </div>
       )}
 
-      {/* Results Dialog */}
+      {/* Results Dialog with Carousel */}
       <Dialog open={showResults} onOpenChange={closeResults}>
-        <DialogContent className="max-w-6xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-center text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
               Pacchetto aperto! 🎉
             </DialogTitle>
           </DialogHeader>
           
-          {/* Enhanced grid layout for larger sticker cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-6">
-            {openedStickers.map((sticker, index) => (
-              <div 
-                key={index} 
-                className="flex justify-center animate-scale-in" 
-                style={{ animationDelay: `${index * 0.3}s` }}
-              >
-                <StickerCard sticker={sticker} owned={true} size="large" />
+          {currentSticker && (
+            <div className="space-y-6">
+              {/* Sticker Navigation Info */}
+              <div className="text-center">
+                <p className="text-lg font-semibold">
+                  Figurina {currentStickerIndex + 1} di {openedStickers.length}
+                </p>
+                {isDuplicate && (
+                  <div className="mt-2 p-3 bg-yellow-100 border border-yellow-400 rounded-lg">
+                    <p className="text-yellow-800 font-bold">🔄 DOPPIONE!</p>
+                    <p className="text-yellow-700 text-sm">
+                      Hai già questa figurina (×{getStickerCount(currentSticker.id)})
+                    </p>
+                  </div>
+                )}
               </div>
-            ))}
-          </div>
+
+              {/* Sticker Display */}
+              <div className="flex justify-center">
+                <div className="animate-scale-in">
+                  <StickerCard 
+                    sticker={currentSticker} 
+                    owned={true} 
+                    size="large"
+                    count={getStickerCount(currentSticker.id)}
+                    showCount={true}
+                  />
+                </div>
+              </div>
+
+              {/* Navigation Controls */}
+              <div className="flex justify-between items-center">
+                <Button
+                  onClick={prevSticker}
+                  disabled={currentStickerIndex === 0}
+                  variant="outline"
+                  size="lg"
+                >
+                  <ChevronLeft className="h-5 w-5 mr-2" />
+                  Precedente
+                </Button>
+
+                <div className="flex gap-2">
+                  {openedStickers.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`w-3 h-3 rounded-full transition-colors ${
+                        index === currentStickerIndex 
+                          ? 'bg-blue-500' 
+                          : 'bg-gray-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                <Button
+                  onClick={nextSticker}
+                  disabled={currentStickerIndex === openedStickers.length - 1}
+                  variant="outline"
+                  size="lg"
+                >
+                  Successiva
+                  <ChevronRight className="h-5 w-5 ml-2" />
+                </Button>
+              </div>
+            </div>
+          )}
           
           <div className="text-center p-6 border-t">
             <Button onClick={closeResults} size="lg" className="px-8 py-3 text-lg">
