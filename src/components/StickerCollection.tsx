@@ -103,14 +103,15 @@ const StickerCollection = ({ collection, hasSticker, getStickerCount }: StickerC
                 <Progress value={categoryStats.percentage} className="w-full" />
               </Card>
 
-              <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {/* Updated grid for larger stickers */}
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 p-4">
                 {categoryStickers.map((sticker) => (
                   <StickerCard
                     key={sticker.id}
                     sticker={sticker}
                     owned={hasSticker(sticker.id)}
                     count={getStickerCount(sticker.id)}
-                    size="small"
+                    size="medium"
                     showCount={true}
                   />
                 ))}

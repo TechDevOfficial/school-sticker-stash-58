@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -146,22 +145,29 @@ const PackOpener = ({ coins, onOpenPack }: PackOpenerProps) => {
 
       {/* Results Dialog */}
       <Dialog open={showResults} onOpenChange={closeResults}>
-        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-center text-2xl">Pacchetto aperto! 🎉</DialogTitle>
+            <DialogTitle className="text-center text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+              Pacchetto aperto! 🎉
+            </DialogTitle>
           </DialogHeader>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 p-4">
+          {/* Enhanced grid layout for larger sticker cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 p-6">
             {openedStickers.map((sticker, index) => (
-              <div key={index} className="animate-scale-in" style={{ animationDelay: `${index * 0.2}s` }}>
-                <StickerCard sticker={sticker} owned={true} size="medium" />
+              <div 
+                key={index} 
+                className="flex justify-center animate-scale-in" 
+                style={{ animationDelay: `${index * 0.3}s` }}
+              >
+                <StickerCard sticker={sticker} owned={true} size="large" />
               </div>
             ))}
           </div>
           
-          <div className="text-center p-4">
-            <Button onClick={closeResults} size="lg">
-              Aggiungi all'album
+          <div className="text-center p-6 border-t">
+            <Button onClick={closeResults} size="lg" className="px-8 py-3 text-lg">
+              Aggiungi all'album ✨
             </Button>
           </div>
         </DialogContent>
